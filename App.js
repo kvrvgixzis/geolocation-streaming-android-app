@@ -52,22 +52,24 @@ const App = () => {
       });
 
       if (position && compassHeading && isStart && aicarId) {
+        const data = {
+          phone_accuracy: position.coords.accuracy,
+          phone_altitude: position.coords.altitude,
+          phone_heading: compassHeading,
+          phone_latitude: position.coords.latitude,
+          phone_longitude: position.coords.longitude,
+          phone_speed: position.coords.speed,
+          phone_time: new Date().toISOString(),
+        };
         fetch(`${url}${aicarId}/`, {
           method: 'PATCH',
           headers: {
             Accept: 'application/json',
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            phone_accuracy: position.coords.accuracy,
-            phone_altitude: position.coords.altitude,
-            phone_heading: compassHeading,
-            phone_latitude: position.coords.latitude,
-            phone_longitude: position.coords.longitude,
-            phone_speed: position.coords.speed,
-            phone_time: new Date().toISOString(),
-          }),
+          body: JSON.stringify(data),
         }).then((r) => console.log('ok:', r.ok, 'status:', r.status));
+        console.log('data:', JSON.stringify(data, null, 2));
       }
     }, timeout);
 

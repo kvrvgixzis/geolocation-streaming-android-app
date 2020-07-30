@@ -93,9 +93,7 @@ const App = () => {
           </View>
           <Button
             title={isStart ? 'Stop' : 'Start'}
-            onPress={() => {
-              setIsStart(!isStart);
-            }}
+            onPress={() => setIsStart(!isStart)}
           />
         </View>
       </SafeAreaView>

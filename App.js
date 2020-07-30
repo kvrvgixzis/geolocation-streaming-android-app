@@ -2,11 +2,12 @@ import React from 'react';
 import {
   SafeAreaView,
   TextInput,
-  Button,
+  Alert,
   StyleSheet,
   View,
   Text,
   StatusBar,
+  TouchableOpacity,
 } from 'react-native';
 
 import Geolocation from '@react-native-community/geolocation';
@@ -24,19 +25,19 @@ const App = () => {
   const GeoData = () => {
     if (position && compassHeading && isStart && aicarId) {
       return (
-        <View style={styles.pm10}>
-          <Text>phone_accuracy: {position.coords.accuracy}</Text>
-          <Text>phone_altitude: {position.coords.altitude}</Text>
-          <Text>phone_heading: {compassHeading}</Text>
-          <Text>phone_latitude: {position.coords.latitude}</Text>
-          <Text>phone_longitude: {position.coords.longitude}</Text>
-          <Text>phone_speed:{position.coords.speed}</Text>
-          <Text>phone_time: {new Date().toISOString()}</Text>
+        <View style={styles.card}>
+          <Text>accuracy: {position.coords.accuracy}</Text>
+          <Text>altitude: {position.coords.altitude}</Text>
+          <Text>heading: {compassHeading}</Text>
+          <Text>latitude: {position.coords.latitude}</Text>
+          <Text>longitude: {position.coords.longitude}</Text>
+          <Text>speed: {position.coords.speed}</Text>
+          <Text>time: {new Date().toISOString()}</Text>
         </View>
       );
     }
     return (
-      <View style={styles.pm10}>
+      <View style={styles.card}>
         <Text>Please press start</Text>
       </View>
     );
@@ -44,14 +45,23 @@ const App = () => {
 
   React.useEffect(() => {
     const degree_update_rate = 0;
+    let watchId;
 
     const timer = setTimeout(() => {
       Geolocation.getCurrentPosition((info) => setPosition(info));
       CompassHeading.start(degree_update_rate, (degree) => {
         setCompassHeading(degree);
       });
+      watchId = Geolocation.watchPosition(
+        (pos) => {
+          setPosition(pos);
+        },
+        (e) => Alert(e.message),
+      );
 
       if (position && compassHeading && isStart && aicarId) {
+        console.log(position);
+
         const data = {
           phone_accuracy: position.coords.accuracy,
           phone_altitude: position.coords.altitude,
@@ -61,6 +71,7 @@ const App = () => {
           phone_speed: position.coords.speed,
           phone_time: new Date().toISOString(),
         };
+
         fetch(`${url}${aicarId}/`, {
           method: 'PATCH',
           headers: {
@@ -78,6 +89,7 @@ const App = () => {
     return () => {
       clearTimeout(timer);
       CompassHeading.stop();
+      Geolocation.clearWatch(watchId);
     };
   }, [aicarId, compassHeading, isStart, position, timeout]);
 
@@ -85,9 +97,9 @@ const App = () => {
     <>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
-        <View>
+        <View style={styles.body}>
           <GeoData />
-          <View style={styles.flexRow}>
+          <View style={{...styles.card, ...styles.flexRow}}>
             <Text>AiCar ID:</Text>
             <TextInput
               style={styles.textInput}
@@ -95,10 +107,11 @@ const App = () => {
               onChangeText={(text) => setAicarId(text)}
             />
           </View>
-          <Button
-            title={isStart ? 'Stop' : 'Start'}
-            onPress={() => setIsStart(!isStart)}
-          />
+          <TouchableOpacity
+            style={{...styles.card, ...styles.flexRow}}
+            onPress={() => setIsStart(!isStart)}>
+            <Text>{isStart ? 'Stop' : 'Start'}</Text>
+          </TouchableOpacity>
         </View>
       </SafeAreaView>
     </>
@@ -106,24 +119,37 @@ const App = () => {
 };
 
 const styles = StyleSheet.create({
+  body: {
+    padding: 10,
+    backgroundColor: '#eee',
+    width: '100%',
+    height: '100%',
+  },
   flexRow: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 10,
   },
   textInput: {
-    borderColor: '#000',
-    borderWidth: 1,
-    padding: 10,
+    borderColor: '#999',
+    borderBottomWidth: 1,
+    padding: 5,
     flex: 1,
     marginLeft: 10,
   },
-  pm10: {
-    borderColor: '#000',
-    borderWidth: 1,
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 5,
     padding: 10,
-    margin: 10,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.45,
+    shadowRadius: 3.84,
+    elevation: 9,
   },
 });
 

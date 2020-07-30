@@ -19,7 +19,7 @@ const App = () => {
   const [position, setPosition] = React.useState({});
   const [aicarId, setAicarId] = React.useState(1);
   const [isStart, setIsStart] = React.useState(false);
-  const [timeout, setSendTimeout] = React.useState(500);
+  const [timeout, setSendTimeout] = React.useState(200);
 
   const GeoData = () => {
     if (position && compassHeading && isStart && aicarId) {
@@ -43,7 +43,7 @@ const App = () => {
   };
 
   React.useEffect(() => {
-    const degree_update_rate = 3;
+    const degree_update_rate = 0;
 
     const timer = setTimeout(() => {
       Geolocation.getCurrentPosition((info) => setPosition(info));

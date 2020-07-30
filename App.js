@@ -68,8 +68,10 @@ const App = () => {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify(data),
-        }).then((r) => console.log('ok:', r.ok, 'status:', r.status));
-        console.log('data:', JSON.stringify(data, null, 2));
+        }).then((r) => {
+          console.log('ok:', r.ok, 'status:', r.status);
+          console.log('data:', JSON.stringify(data, null, 2));
+        });
       }
     }, timeout);
 
